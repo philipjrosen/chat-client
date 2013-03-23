@@ -6,13 +6,36 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/styles.css">
     <script src="vendor/jquery/jquery-1.9.1.js"></script>
+    <script src="vendor/underscore/underscore.js"></script>
     <script src="js/setup.js"></script>
   </head>
   <body>
-
-    <div id="main">
+    <section>
       <h1>Chat with JSON!</h1>
+    <div id="main" class="active">
+      <h2>Blue Room</h2>
+      <div class="post"></div>
     </div>
-
+  </section>
+    <div class="form">
+    <form action="#">      
+      <fieldset>
+        <legend><b>Send a message:</legend></b><br /> 
+        <label>Username:<br /><input type="text" name="username" /></label><br />
+         <label>Message:<br /><textarea name="text" cols="22" rows="4"></textarea></label><br />
+        <label>Select a Chat Room or create a new one:<br />
+        <select name="devices">
+          <option value="Main" selected="selected">Main Chat Room
+      </select>
+    </label><br />
+      <label>New Chat Room Name:<br /><input type="text" name="roomname" /></label>
+      <input id="button" type="submit" name="post-message" value="Post Message" />
+      </fieldset>
+    </form>
+    </div>
   </body>
 </html>
+
+      
+  
+  
