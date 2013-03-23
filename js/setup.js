@@ -18,18 +18,18 @@ $(document).ready(function(){
 	var index = 0;
 	var friends = [];
 	var rooms = [];
-	
+	var this_room_msgs = [];
+	//GET THE MESSAGES ON LOAD
 	getMessagesOnLoad();
 
 	function getMessagesOnLoad (){
 		$.ajax(url,{
 		contentType: 'application/json',
 		success: function(data){
-			var res = data.results;
-			_.each(res,function(elem){
+			_.each(data.results,function(elem){
 				rooms.push(elem.roomname);
 				var html = buildHTML(elem.username, elem.text, elem.roomname);
-				$('#main div:first').after(html); 
+				$('#main div:first').prepend(html); 
 			});
 			rooms = _.uniq(rooms);
 			_.each(rooms,function(val){buildSelect(val)});
@@ -42,33 +42,38 @@ $(document).ready(function(){
 		});
 	}
 
-	function buildSelect (rname) {
-		var options = '<option value="'+rname+'">'+rname+'</option>';
-		console.log(options);
-		$('select option:first').after(options); 
-	}
-
 	function getRoomMessages (rname){
-		$.ajax(url,{
 		contentType: 'application/json',
-			success: function(data){
-
-				var rm_msgs = [];
-				var HTML = [];
-				rm_msgs = _.filter(data.results, function(elem){return rname === elem.roomname; });
-				for (var i = 0; i < rm_msgs.length; i++) {
-					console.log("rm_msgs["+i+"].roomname:" + rm_msgs[i].roomname);
-					if(!rm_msgs[i].roomname){rm_msgs[i].roomname = "Main"};
-					HTML.push(buildHTML(rm_msgs[i].username, rm_msgs[i].text, rm_msgs[i].roomname));
-				}	
-				for (var i = 0; i < HTML.length; i++) {
-					$('#main div:first').after(HTML[i]);
-				}
-				
-			
+		$.ajax(url,{
+			success: function(data) {
+				//if the message matchs the roomname push it into an array
+			this_room_msgs = _.filter(data.results, function(elem){return rname === elem.roomname; });	
+			_.each(this_room_msgs,function(elem){
+				var html = buildHTML(elem.username, elem.text, elem.roomname);
+				$('#main div:first').prepend(html); 
+			});
 			}
 		});
 	}
+
+	// function getRoomMessages (rname){
+	// 	$.ajax(url,{
+	// 	contentType: 'application/json',
+	// 		success: function(data) {
+	// 			var rm_msgs = [];
+	// 			var HTML = [];
+	// 			rm_msgs = _.filter(data.results, function(elem){return rname === elem.roomname; });
+	// 			for (var i = 0; i < rm_msgs.length; i++) {
+	// 				//console.log("rm_msgs["+i+"].roomname:" + rm_msgs[i].roomname);
+	// 				if(!rm_msgs[i].roomname){rm_msgs[i].roomname = "Main"};
+	// 				HTML.push(buildHTML(rm_msgs[i].username, rm_msgs[i].text, rm_msgs[i].roomname));
+	// 			}	
+	// 			for (var i = 0; i < HTML.length; i++) {
+	// 				$('#main div:first').after(HTML[i]);
+	// 			}	
+	// 		}
+	// 	});
+	// }
 
 	function postMessage (message){
 		$.ajax(url, {
@@ -77,6 +82,7 @@ $(document).ready(function(){
 		data: JSON.stringify(message),
 		dataType: 'JSON',
 		success: function(){
+			//$('#main').empty();
 			getMessagesOnLoad();
 		}
 		});
@@ -89,10 +95,11 @@ $(document).ready(function(){
 		return html;
 	}
 
+	function buildSelect (rname) {
+		var options = '<option value="'+rname+'">'+rname+'</option>';
+		$('select option:first').after(options); 
+	}
 	
-
-		
-	//look at api to figure out how to clear old messages
 	
 	var username = "";
 	var text = "";
@@ -109,7 +116,7 @@ $(document).ready(function(){
 		postMessage(message);
 	});
 	
-	$("#main").on('click', '.post', function(){
+	$("#main").on('click', '.first', function(){
 		var friend = $(this).data("username");
 		$('[data-username ='+friend+']').addClass('bold');
 		friends.push(friend);
@@ -117,6 +124,7 @@ $(document).ready(function(){
 
 	$('select').change(function(e){
 		e.preventDefault();
+		$('.first').empty();
 		var chatroom = $(this).val();
 		getRoomMessages(chatroom);
 	});
